@@ -2044,6 +2044,8 @@ JitsiConference.prototype.setStartMutedPolicy = function(policy) {
     if (!this.isModerator()) {
         return;
     }
+    
+
     this.startMutedPolicy = policy;
     this.room.removeFromPresence('startmuted');
     this.room.addToPresence('startmuted', {
@@ -2178,6 +2180,17 @@ JitsiConference.prototype._onTrackAttach = function(track, container) {
             ? this.p2pJingleSession && this.p2pJingleSession.peerconnection
             : this.jvbJingleSession && this.jvbJingleSession.peerconnection;
 
+ console.log("Bole:localVideoTrack  Track *******************************");
+
+  console.log('%s', isLocal);
+  console.log("Bole-25-jan: Local Audio Track *******************************");
+            // to attempt to add the same local video track twice.
+  console.log('%s', ssrc);
+
+console.log("Bole: SSRC Track  info *******************************");
+
+  console.log('%s', ssrc);
+
     if (isLocal) {
         // Local tracks have SSRC stored on per peer connection basis
         if (peerConnection) {
@@ -2189,6 +2202,8 @@ JitsiConference.prototype._onTrackAttach = function(track, container) {
     if (!container.id || !ssrc || !peerConnection) {
         return;
     }
+      console.log("SSRC details"+ ' %s', ssrc);
+
 
     this.statistics.associateStreamWithVideoTag(
         peerConnection,
