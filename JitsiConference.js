@@ -33,7 +33,7 @@ import GlobalOnErrorHandler from './modules/util/GlobalOnErrorHandler';
 import ComponentsVersions from './modules/version/ComponentsVersions';
 import VideoSIPGW from './modules/videosipgw/VideoSIPGW';
 import * as VideoSIPGWConstants from './modules/videosipgw/VideoSIPGWConstants';
-import { JITSI_MEET_MUC_TYPE } from './modules/xmpp/xmpp';
+import { JITSI_MEET_MUC_TYPE } from './modules/xmpp/ChatRoom';
 import * as MediaType from './service/RTC/MediaType';
 import * as RTCEvents from './service/RTC/RTCEvents';
 import VideoType from './service/RTC/VideoType';
@@ -2044,8 +2044,6 @@ JitsiConference.prototype.setStartMutedPolicy = function(policy) {
     if (!this.isModerator()) {
         return;
     }
-    
-
     this.startMutedPolicy = policy;
     this.room.removeFromPresence('startmuted');
     this.room.addToPresence('startmuted', {
@@ -2180,17 +2178,6 @@ JitsiConference.prototype._onTrackAttach = function(track, container) {
             ? this.p2pJingleSession && this.p2pJingleSession.peerconnection
             : this.jvbJingleSession && this.jvbJingleSession.peerconnection;
 
- console.log("Bole-14-Feb:localVideoTrack  Track *******************************");
-
-  console.log('%s', isLocal);
-  console.log("Bole-14-Feb: Local Audio Track *******************************");
-            // to attempt to add the same local video track twice.
-  console.log('%s', ssrc);
-
-console.log("Bole:14-Feb SSRC Track  info *******************************");
-
-  console.log('%s', ssrc);
-
     if (isLocal) {
         // Local tracks have SSRC stored on per peer connection basis
         if (peerConnection) {
@@ -2202,8 +2189,6 @@ console.log("Bole:14-Feb SSRC Track  info *******************************");
     if (!container.id || !ssrc || !peerConnection) {
         return;
     }
-      console.log("SSRC details"+ ' %s', ssrc);
-
 
     this.statistics.associateStreamWithVideoTag(
         peerConnection,

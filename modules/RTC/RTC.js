@@ -448,13 +448,7 @@ export default class RTC extends Listenable {
                 { abtestSuspendVideo: options.abtestSuspendVideo });
         }
 
-        // FIXME: We should rename iceConfig to pcConfig.
-        if (browser.supportsSdpSemantics()) {
-            iceConfig.sdpSemantics = 'plan-b';
-        }
-
         peerConnectionIdCounter = safeCounterIncrement(peerConnectionIdCounter);
-
         const newConnection
             = new TraceablePeerConnection(
                 this,

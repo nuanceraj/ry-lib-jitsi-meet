@@ -346,11 +346,6 @@ export default class ConnectionQuality {
             }
         }
 
-console.log("Bole: packetLoss 1*******************************");
-
-  console.log('%s', packetLoss);
-  console.log("Bole: packetLoss 1*******************************");
-
         if (isMuted || !resolution || videoType === VideoType.DESKTOP
             || this._timeIceConnected < 0
             || this._timeVideoUnmuted < 0) {
@@ -485,12 +480,6 @@ console.log("Bole: packetLoss 1*******************************");
      * @param data new statistics
      */
     _updateLocalStats(tpc, data) {
-
-        console.log("Bole: _updateLocalStats 1*******************************");
-
-  console.log('%s', data);
-  console.log("Bole: _updateLocalStats 1*******************************");
-
         // Update jvbRTT
         if (!tpc.isP2P) {
             const jvbRTT

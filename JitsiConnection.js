@@ -22,7 +22,6 @@ export default function JitsiConnection(appID, token, options) {
     this.token = token;
     this.options = options;
     this.xmpp = new XMPP(options, token);
-    console.log("Bole: Test 14-Feb JitsiConnection  log ");
 
     /* eslint-disable max-params */
     this.addEventListener(JitsiConnectionEvents.CONNECTION_FAILED,

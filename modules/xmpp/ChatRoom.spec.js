@@ -47,17 +47,17 @@ describe('ChatRoom', () => {
                 to: 'tojid',
                 from: 'fromjid'
             })
-            .c('element-name').t('element-name-text').up();
+            .c('user-agent').t('user-agent-text').up();
 
             parser.packet2JSON(p.tree(), nodes);
 
             expect(nodes.length).toBe(1);
-            const elem = nodes.find(n => n.tagName === 'element-name');
+            const userAgent = nodes.find(n => n.tagName === 'user-agent');
 
-            expect(elem).toBeTruthy();
-            expect(Object.keys(elem.attributes).length).toEqual(0);
-            expect(elem.children.length).toEqual(0);
-            expect(elem.value).toEqual('element-name-text');
+            expect(userAgent).toBeTruthy();
+            expect(Object.keys(userAgent.attributes).length).toEqual(0);
+            expect(userAgent.children.length).toEqual(0);
+            expect(userAgent.value).toEqual('user-agent-text');
         });
 
         it('translates elements with children correctly', () => {
