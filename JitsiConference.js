@@ -2180,14 +2180,14 @@ JitsiConference.prototype._onTrackAttach = function(track, container) {
             ? this.p2pJingleSession && this.p2pJingleSession.peerconnection
             : this.jvbJingleSession && this.jvbJingleSession.peerconnection;
 
- console.log("Bole:localVideoTrack  Track *******************************");
+ console.log("Bole-14-Feb:localVideoTrack  Track *******************************");
 
   console.log('%s', isLocal);
-  console.log("Bole-25-jan: Local Audio Track *******************************");
+  console.log("Bole-14-Feb: Local Audio Track *******************************");
             // to attempt to add the same local video track twice.
   console.log('%s', ssrc);
 
-console.log("Bole: SSRC Track  info *******************************");
+console.log("Bole:14-Feb SSRC Track  info *******************************");
 
   console.log('%s', ssrc);
 
