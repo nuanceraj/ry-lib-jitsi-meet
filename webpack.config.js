@@ -1,31 +1,14 @@
 /* global __dirname */
 
 const process = require('process');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const webpack = require('webpack');
 
 const minimize
     = process.argv.indexOf('-p') !== -1
         || process.argv.indexOf('--optimize-minimize') !== -1;
-const plugins = [
-    new webpack.LoaderOptionsPlugin({
-        debug: !minimize,
-        minimize
-    })
-];
-
-if (minimize) {
-    plugins.push(new webpack.optimize.ModuleConcatenationPlugin());
-    plugins.push(new UglifyJsPlugin({
-        cache: true,
-        extractComments: true,
-        parallel: true,
-        sourceMap: true
-    }));
-}
 
 const config = {
     devtool: 'source-map',
+    mode: minimize ? 'production' : 'development',
     module: {
         rules: [ {
             // Version this build of the lib-jitsi-meet library.
@@ -48,14 +31,18 @@ const config = {
             options: {
                 presets: [
                     [
-                        'env',
+                        '@babel/preset-env',
 
                         // Tell babel to avoid compiling imports into CommonJS
                         // so that webpack may do tree shaking.
                         { modules: false }
                     ],
-                    'flow',
-                    'stage-1'
+                    '@babel/preset-flow'
+                ],
+                plugins: [
+                    '@babel/plugin-transform-flow-strip-types',
+                    '@babel/plugin-proposal-class-properties',
+                    '@babel/plugin-proposal-export-namespace-from'
                 ]
             },
             test: /\.js$/
@@ -67,11 +54,14 @@ const config = {
         // value that is a mock (/index.js).
         __filename: true
     },
+    optimization: {
+        concatenateModules: minimize
+    },
     output: {
         filename: `[name]${minimize ? '.min' : ''}.js`,
+        path: process.cwd(),
         sourceMapFilename: `[name].${minimize ? 'min' : 'js'}.map`
-    },
-    plugins
+    }
 };
 
 module.exports = [

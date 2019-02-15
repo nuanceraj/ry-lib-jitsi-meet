@@ -76,52 +76,6 @@ function filterNodeFromPresenceJSON(pres, nodeName) {
     return res;
 }
 
-/**
- * The name of the field used to recognize a chat message as carrying a JSON
- * payload from another endpoint.
- * If the json-message of a chat message contains a valid JSON object, and the
- * JSON has this key, then it is a valid json-message to be sent.
- */
-export const JITSI_MEET_MUC_TYPE = 'type';
-
-/**
- * Check if the given argument is a valid JSON ENDPOINT_MESSAGE string by
- * parsing it and checking if it has a field called 'type'.
- *
- * @param {string} jsonString check if this string is a valid json string
- * and contains the special structure.
- * @returns {boolean, object} if given object is a valid JSON string, return
- * the json object. Otherwise, returns false.
- */
-function tryParseJSONAndVerify(jsonString) {
-    try {
-        const json = JSON.parse(jsonString);
-
-        // Handle non-exception-throwing cases:
-        // Neither JSON.parse(false) or JSON.parse(1234) throw errors,
-        // hence the type-checking,
-        // but... JSON.parse(null) returns null, and
-        // typeof null === "object",
-        // so we must check for that, too.
-        // Thankfully, null is falsey, so this suffices:
-        if (json && typeof json === 'object') {
-            const type = json[JITSI_MEET_MUC_TYPE];
-
-            if (typeof type !== 'undefined') {
-                return json;
-            }
-
-            logger.debug('parsing valid json but does not have correct '
-                + 'structure', 'topic: ', type);
-        }
-    } catch (e) {
-
-        return false;
-    }
-
-    return false;
-}
-
 // XXX As ChatRoom constructs XMPP stanzas and Strophe is build around the idea
 // of chaining function calls, allow long function call chains.
 /* eslint-disable newline-per-chained-call */
@@ -182,11 +136,6 @@ export default class ChatRoom extends Listenable {
         this.presMap.to = this.myroomjid;
         this.presMap.xns = 'http://jabber.org/protocol/muc';
         this.presMap.nodes = [];
-        this.presMap.nodes.push({
-            'tagName': 'user-agent',
-            'value': navigator.userAgent,
-            'attributes': { xmlns: 'http://jitsi.org/jitmeet/user-agent' }
-        });
 
         if (options.enableStatsID) {
             this.presMap.nodes.push({
@@ -588,12 +537,10 @@ export default class ChatRoom extends Listenable {
                             ? Strophe.getResourceFromJid(from)
                             : member.nick;
 
-                    if (displayName && displayName.length > 0) {
-                        this.eventEmitter.emit(
-                            XMPPEvents.DISPLAY_NAME_CHANGED,
-                            from,
-                            displayName);
-                    }
+                    this.eventEmitter.emit(
+                        XMPPEvents.DISPLAY_NAME_CHANGED,
+                        from,
+                        displayName);
                 }
                 break;
             case 'bridgeNotAvailable':
@@ -930,7 +877,7 @@ export default class ChatRoom extends Listenable {
             this.discoRoomInfo();
         }
         const jsonMessage = $(msg).find('>json-message').text();
-        const parsedJson = tryParseJSONAndVerify(jsonMessage);
+        const parsedJson = this.xmpp.tryParseJSONAndVerify(jsonMessage);
 
         // We emit this event if the message is a valid json, and is not
         // delivered after a delay, i.e. stamp is undefined.
