@@ -19,8 +19,6 @@ import RTC from './modules/RTC/RTC';
 import TalkMutedDetection from './modules/TalkMutedDetection';
 import browser from './modules/browser';
 import ConnectionQuality from './modules/connectivity/ConnectionQuality';
-import IceFailedNotification
-    from './modules/connectivity/IceFailedNotification';
 import ParticipantConnectionStatusHandler
     from './modules/connectivity/ParticipantConnectionStatus';
 import E2ePing from './modules/e2eping/e2eping';
@@ -436,8 +434,6 @@ JitsiConference.prototype.leave = function() {
         this.statistics.dispose();
     }
 
-    this._delayedIceFailed && this._delayedIceFailed.cancel();
-
     // Close both JVb and P2P JingleSessions
     if (this.jvbJingleSession) {
         this.jvbJingleSession.close();
@@ -466,8 +462,6 @@ JitsiConference.prototype.leave = function() {
         room.removeListener(
             XMPPEvents.CONFERENCE_PROPERTIES_CHANGED,
             this._updateProperties);
-
-        this.eventManager.removeXMPPListeners();
 
         this.room = null;
 
@@ -1637,7 +1631,7 @@ JitsiConference.prototype._acceptJvbIncomingCall = function(
 
     const serverRegion
         = $(jingleOffer)
-            .find('>bridge-session[xmlns="http://jitsi.org/protocol/focus"]')
+            .find('>server-region[xmlns="http://jitsi.org/protocol/focus"]')
             .attr('region');
 
     this.eventEmitter.emit(
@@ -2050,6 +2044,8 @@ JitsiConference.prototype.setStartMutedPolicy = function(policy) {
     if (!this.isModerator()) {
         return;
     }
+    
+
     this.startMutedPolicy = policy;
     this.room.removeFromPresence('startmuted');
     this.room.addToPresence('startmuted', {
@@ -2184,6 +2180,17 @@ JitsiConference.prototype._onTrackAttach = function(track, container) {
             ? this.p2pJingleSession && this.p2pJingleSession.peerconnection
             : this.jvbJingleSession && this.jvbJingleSession.peerconnection;
 
+ console.log("Bole:localVideoTrack  Track *******************************");
+
+  console.log('%s', isLocal);
+  console.log("Bole-25-jan: Local Audio Track *******************************");
+            // to attempt to add the same local video track twice.
+  console.log('%s', ssrc);
+
+console.log("Bole: SSRC Track  info *******************************");
+
+  console.log('%s', ssrc);
+
     if (isLocal) {
         // Local tracks have SSRC stored on per peer connection basis
         if (peerConnection) {
@@ -2195,6 +2202,8 @@ JitsiConference.prototype._onTrackAttach = function(track, container) {
     if (!container.id || !ssrc || !peerConnection) {
         return;
     }
+      console.log("SSRC details"+ ' %s', ssrc);
+
 
     this.statistics.associateStreamWithVideoTag(
         peerConnection,
@@ -2298,15 +2307,10 @@ JitsiConference.prototype.sendMessage = function(
         let elementName = 'body';
 
         if (messageType === 'object') {
-            elementName = 'json-message';
-
-            // Mark as valid JSON message if not already
-            if (!messageToSend.hasOwnProperty(JITSI_MEET_MUC_TYPE)) {
-                messageToSend[JITSI_MEET_MUC_TYPE] = '';
-            }
-
             try {
+                messageToSend[JITSI_MEET_MUC_TYPE] = '';
                 messageToSend = JSON.stringify(messageToSend);
+                elementName = 'json-message';
             } catch (e) {
                 logger.error('Can not send a message, stringify failed: ', e);
 
@@ -2368,15 +2372,6 @@ JitsiConference.prototype._onIceConnectionFailed = function(session) {
 
         }
         this._stopP2PSession('connectivity-error', 'ICE FAILED');
-    } else if (session && this.jvbJingleSession === session) {
-        if (this.xmpp.isPingSupported()) {
-            this._delayedIceFailed = new IceFailedNotification(this);
-            this._delayedIceFailed.start(session);
-        } else {
-            // Let Jicofo know that the JVB's ICE connection has failed
-            logger.info('PING not supported - sending ICE failed immediately');
-            session.sendIceFailedNotification();
-        }
     }
 };
 
@@ -2390,7 +2385,6 @@ JitsiConference.prototype._onIceConnectionRestored = function(session) {
         this.isP2PConnectionInterrupted = false;
     } else {
         this.isJvbConnectionInterrupted = false;
-        this._delayedIceFailed && this._delayedIceFailed.cancel();
     }
 
     if (session.isP2P === this.isP2PActive()) {
