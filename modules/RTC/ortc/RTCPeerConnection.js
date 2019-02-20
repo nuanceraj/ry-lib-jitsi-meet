@@ -1770,7 +1770,8 @@ export default class ortcRTCPeerConnection extends yaeti.EventTarget {
     _setIceGatherer(pcConfig) {
         const iceGatherOptions = {
             gatherPolicy: pcConfig.iceTransportPolicy || 'all',
-            iceServers: pcConfig.iceServers
+            iceServers: pcConfig.iceServers,
+            sdpSemantics:'plan-b'
         };
         const iceGatherer = new RTCIceGatherer(iceGatherOptions);
 
